@@ -1,0 +1,1 @@
+java.exe -cp ../lib/commons-cli-1.0.jar;../lib/commons-logging-1.0.jar;../lib/commons-lang-1.0.jar;../lib/log4j-1.2.8.jar;../lib/JDownloadOrganizer-0.0.1-SNAPSHOT.jar com.xandrev.jdorg.main.JDorgStarter

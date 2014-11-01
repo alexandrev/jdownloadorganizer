@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Start Page</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/jdorg/jdorg.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var manager = new Organizer();
+        </script>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="page-header">
+                        <h1>
+                            JDownload Organizer <span>v0.1b</span>
+                        </h1>
+                    </div>
+                    <ul class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#" onclick="manager.shows()">TV Shows</a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="manager.movies()">Movies</a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="manager.logs()">Messages</a>
+                        </li>
+                    </ul>
+                    <form class="form-search form-inline">
+                        <input type="text" class="input-medium search-query" /> <button type="submit" class="btn">Search</button>
+                    </form>
+                    <table class="table table-condensed table-bordered">
+                        <thead id="table_head">
+                            <tr>
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                    Show
+                                </th>
+                                <th>
+                                    Season
+                                </th>
+                                <th>
+                                    Episode
+                                </th>
+                                <th>
+                                    Timestamp
+                                </th>
+                                <th>
+                                    File
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_result">
+                        </tbody>
+                    </table>
+                </div>
+                <nav>
+                    <ul class="pagination">
+                        <li><a href="#" onclick="manager.prev(5)">&laquo;</a></li>
+                        <li><a href="#" onclick="manager.next(5)">&raquo;</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
+    </body>
+
+</html>

@@ -1,0 +1,16 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.xandrev.jdorg.organizers.movies.impl;
+
+/**
+ *
+ * @author alexandrev
+ */
+public class MovieOrganizerConstants {
+ 
+    public static final String ROOT_FOLDER_DEFAULT_VALUE = "Peliculas";
+    public static final int PRIORITY_DEFAULT_VALUE = 1000;
+    public static final String OWN_FOLDER_MOVIE_DEFAULT_VALUE = "true";
+}
