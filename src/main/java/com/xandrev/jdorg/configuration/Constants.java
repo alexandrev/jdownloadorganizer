@@ -10,8 +10,7 @@ public interface Constants {
     String INITIAL_FOLDER = "general.initial_folder";
     String FINAL_FOLDER = "general.final_folder";
     String SLEEP_TIME = "general.sleep_time";
-    String VIDEO_EXTENSIONS = "general.extensions.video";
-    String SUBTITLE_EXTENSIONS = "general.extensions.subtitle";
+    
     String ORGANIZER_NAMES = "organizer.list";
     String CONFIG_FILE_PATH = "general.properties";
     String RESOURCE_BUNDLE_NAME = "com.xandrev.jdorg.i18n.Messages";

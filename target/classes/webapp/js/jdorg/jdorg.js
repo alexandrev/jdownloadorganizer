@@ -20,11 +20,19 @@ function Organizer() {
                 this.currentType = 'MOVIE';
                 this.currentIndex = 0;
                 this.get(10);
-            }
+            },
+            this.get_organizers = function (callback) {
+                $.get('/api/organizer/type/list/',
+                        function (data) {
+                            if (data.result) {
+                                callback(data.result);
+                            }
+                        }, 'json');
 
-    this.next = function (count) {
-        this.get(count);
-    },
+            },
+            this.next = function (count) {
+                this.get(count);
+            },
             this.prev = function (count) {
                 this.currentIndex -= count;
                 this.get(count);
@@ -51,7 +59,7 @@ function Organizer() {
         var cType = this.currentType;
         $.get('/api/organizer/audit/list/' + type + '/' + index + "/" + count + "/",
                 function (data) {
-                    if (data.result) { 
+                    if (data.result) {
                         var value = '<tbody id="table_result">';
                         var i = 1;
                         for (var item in data.items) {

@@ -69,7 +69,6 @@ public abstract class AuditData {
         this.itemName = itemName;
     }
 
-    public abstract JsonObject toJSON();
 
     public abstract void setCustomData(String customData);
     
@@ -134,5 +133,16 @@ public abstract class AuditData {
         this.deleted = deleted;
     }
     
+    public JsonObject toJSON() {
+        JsonObject tmpJson = new JsonObject();
+        tmpJson.addProperty("filename", getFileName());
+        tmpJson.addProperty("type",getType());
+        tmpJson.addProperty("timestamp", getTimestamp() == null? "":getTimestamp().toString());
+        tmpJson.addProperty("status", getStatus());
+        tmpJson.addProperty("renamed", isRenamed());
+        tmpJson.addProperty("copied", isCopied());
+        tmpJson.addProperty("deleted", isDeleted());
+        return tmpJson;
+    }
         
 }

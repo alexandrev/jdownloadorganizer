@@ -14,22 +14,14 @@ import java.util.Date;
  *
  * 
  */
-public class MovieData extends AuditData{
+public class FileData extends AuditData{
     
-    public MovieData(String movie,String file){
+    public FileData(String item,String file){
             setTimestamp(new Date());
-            setType(AuditConstants.MOVIE_TYPE);
-            setShowsName(movie);
+            setType(AuditConstants.FILE_TYPE);
             setFileName(file);
     }
     
-    @Override
-     public JsonObject toJSON() {
-        JsonObject tmpJson = super.toJSON();
-        tmpJson.addProperty("show", getShowsName());
-        return tmpJson;
-    }
-
     @Override
     public void setCustomData(String customData) {
      }

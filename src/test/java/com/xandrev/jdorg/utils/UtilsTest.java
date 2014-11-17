@@ -23,7 +23,7 @@ public class UtilsTest {
 	
 	@Test
 	public void testCheckExtensions_Name_Null() {
-		String[] ext = {"avi","mp4"};
+		String[] ext = {"avi","mp4,mkv"};
 		boolean result = Utils.checkExtensions(null, ext);
 		Assert.assertEquals(false, result);
 	}
@@ -31,7 +31,7 @@ public class UtilsTest {
 	@Test
 	public void testCheckExtensions_Contained() {
 		String ext = "avi";
-		String[] extList = {"avi","mp4"};
+		String[] extList = {"avi","mp4","mkv"};
 		boolean result = Utils.checkExtensions(ext, extList);
 		Assert.assertEquals(true, result);
 	}
@@ -39,7 +39,7 @@ public class UtilsTest {
 	@Test
 	public void testCheckExtensions_NotContained() {
 		String ext = "mp3";
-		String[] extList = {"avi","mp4"};
+		String[] extList = {"avi","mp4","mkv"};
 		boolean result = Utils.checkExtensions(ext, extList);
 		Assert.assertEquals(false, result);
 	}

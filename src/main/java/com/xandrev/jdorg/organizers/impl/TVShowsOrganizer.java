@@ -1,5 +1,6 @@
 package com.xandrev.jdorg.organizers.impl;
 
+import com.google.gson.JsonObject;
 import com.xandrev.jdorg.audit.Audit;
 import com.xandrev.jdorg.audit.data.ShowsData;
 import com.xandrev.jdorg.configuration.Configuration;
@@ -10,8 +11,13 @@ import com.xandrev.jdorg.organizers.Organizer;
 import com.xandrev.jdorg.organizers.tvshows.impl.TVShowsOrganizerConfiguration;
 import com.xandrev.jdorg.organizers.tvshows.impl.TVShowsOrganizerConstants;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
 
 /**
  * TV Show organizer for JDownloadOrganizer (JDORG)
@@ -21,12 +27,16 @@ import org.apache.log4j.Logger;
  */
 public class TVShowsOrganizer implements Organizer {
 
+    private String name;
+    private String type;
+    
     private String rootFolder = "";
     private String pattern = "";
     private final Configuration config = Configuration.getInstance();
     private static final Logger logger = LogManager.getLogger(TVShowsOrganizer.class);
     private int priority;
     private final boolean folderSeason;
+    private final Collection<String> extensionList;
 
     public TVShowsOrganizer() {
         rootFolder = config.getProperty(TVShowsOrganizerConfiguration.ROOT_FOLDER_CONFIGURATION);
@@ -54,6 +64,19 @@ public class TVShowsOrganizer implements Organizer {
         }
         folderSeason = Boolean.parseBoolean(folderSeasonString);
 
+        logger.debug("Pattern: "+pattern);
+        
+        extensionList = new ArrayList<String>();
+        
+         String extensionsStr = config.getProperty(TVShowsOrganizerConfiguration.EXTENSIONS_CONFIGURATION);
+        if (extensionsStr == null || extensionsStr.isEmpty()) {
+            extensionsStr = TVShowsOrganizerConstants.EXTENSION_DEFAULT_VALUE;
+        }
+
+        name = TVShowsOrganizerConstants.NAME_ORGANIZER;
+        type = TVShowsOrganizerConstants.TYPE_ORGANIZER;
+
+        parseExtension(extensionsStr);
     }
 
     /**
@@ -75,7 +98,9 @@ public class TVShowsOrganizer implements Organizer {
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(fileName);
         boolean prueba = m.matches();
+        logger.debug("Filename : " + fileName + " matches: "+prueba);
         if (prueba) {
+            
             String serie = m.group(1);
             serie = serie.replaceAll("\\.", " ");
             logger.debug("TV Show extracted: " + serie);
@@ -181,5 +206,60 @@ public class TVShowsOrganizer implements Organizer {
         out.setFileName(origPath);
 
         return out;
+    }
+
+    public JsonObject toJSON() {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("name", getName());
+        obj.addProperty("type", getType());
+        return obj;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+    
+    public Collection<File> getFiles(File initialFolder) {
+        Collection<File> out = new ArrayList<File>();
+        if (initialFolder != null && !initialFolder.exists()) {
+            if (extensionList.size() > 0) {
+                String[] tmpArray = new String[extensionList.size()];
+                out = FileUtils.listFiles(initialFolder, extensionList.toArray(tmpArray), true);
+            }
+        }
+        return out;
+    }
+
+    private void parseExtension(String extensionsStr) {
+        if(extensionsStr != null && !extensionsStr.isEmpty()){
+            String[] extList = extensionsStr.split(",");
+            if(extList != null){
+                extensionList.addAll(Arrays.asList(extList));
+            }
+        }
     }
 }

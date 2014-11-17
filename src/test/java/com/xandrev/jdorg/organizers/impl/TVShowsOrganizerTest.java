@@ -40,6 +40,11 @@ public class TVShowsOrganizerTest {
                 result = test.generateFolder("Elementary - 2x15 - Corpse de Ballet");
                 Assert.assertEquals("Series\\Elementary",result);
                 
+                result = test.generateFolder("Secret.Societies.1of3.The.Heirs.of.the.Knights.Templar.720p.HDTV.x264.AAC.MVGroup.org");
+                Assert.assertEquals("Series\\Secret Societies",result);
+                
+                result = test.generateFolder("Secret.Societies.301.The.Heirs.of.the.Knights.Templar.720p.HDTV.x264.AAC.MVGroup.org");
+                Assert.assertEquals("Series\\Secret Societies",result);
                 
 	}
 	

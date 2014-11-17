@@ -7,5 +7,6 @@ public class AuditConstants {
 
     public static final String TV_SHOW_TYPE = "TV_SHOW";
     public static final String MOVIE_TYPE = "MOVIE";
+    public static final String FILE_TYPE = "FILE";
 
 }

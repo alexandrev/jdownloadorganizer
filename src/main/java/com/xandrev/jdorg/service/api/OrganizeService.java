@@ -15,6 +15,9 @@ import com.xandrev.jdorg.audit.impl.AuditImpl;
 import com.xandrev.jdorg.configuration.Configuration;
 import com.xandrev.jdorg.configuration.Constants;
 import com.xandrev.jdorg.main.ExecutorService;
+import com.xandrev.jdorg.main.ExecutorThread;
+import com.xandrev.jdorg.organizers.Organizer;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -26,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -35,12 +39,11 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-
 /**
  *
- * 
-
-*/
+ *
+ *
+ */
 @Path("/organizer")
 public class OrganizeService {
 
@@ -48,20 +51,21 @@ public class OrganizeService {
     private final ExecutorService service;
     private final AuditImpl auditService;
     private final int httpPort;
+    private final static Logger LOG = Logger.getLogger(OrganizeService.class);
 
     public OrganizeService() {
         cfg = Configuration.getInstance();
         service = ExecutorService.getInstance();
         auditService = AuditImpl.getInstance();
-        
+
         String httpPortString = cfg.getProperty(Constants.REST_API_HTTP_PORT);
-        if(httpPortString == null){
+        if (httpPortString == null) {
             httpPortString = Constants.REST_API_HTTP_PORT_DEFAULT_VALUE;
         }
         httpPort = Integer.parseInt(httpPortString);
     }
 
-    public void init() throws Exception{
+    public void init() throws Exception {
         Server server = new Server(httpPort);
         ServletContextHandler context = new ServletContextHandler(server, "/api", ServletContextHandler.SESSIONS);
         FilterHolder filterHolder = new FilterHolder();
@@ -69,25 +73,32 @@ public class OrganizeService {
         filterHolder.setFilter(filter);
         filterHolder.setInitParameter("allowedOrigins", "*");
         context.addFilter(filterHolder, "/*", EnumSet.allOf(DispatcherType.class));
-        context.addServlet(new ServletHolder(new ServletContainer(new PackagesResourceConfig("com.xandrev.jdorg.service.api"))), "/");        
+        context.addServlet(new ServletHolder(new ServletContainer(new PackagesResourceConfig("com.xandrev.jdorg.service.api"))), "/");
         server.setHandler(context);
         WebAppContext webapp = new WebAppContext();
         webapp.setContextPath("/gui");
-        webapp.setResourceBase("src/main/resources/webapp");
+        URL url = this.getClass().getResource("/webapp");
+        if (url != null) {
+            LOG.debug("Webapp URL: " + url.toString());
+            webapp.setResourceBase(url.toString());
+        }
+
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { context, webapp });
+        handlers.setHandlers(new Handler[]{context, webapp});
         server.setHandler(handlers);
         server.start();
         server.join();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/execute")
     public String executeOrganizer() {
         JsonObject result = new JsonObject();
         try {
-            service.applyExistentFiles();
+
+            launchExecuteAction();
+
             result.addProperty("result", Boolean.TRUE);
         } catch (Exception ex) {
             result.addProperty("result", Boolean.FALSE);
@@ -95,7 +106,7 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/status")
@@ -109,7 +120,7 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/audit/list")
@@ -117,13 +128,13 @@ public class OrganizeService {
         JsonObject result = new JsonObject();
         try {
             Collection item = auditService.getElements();
-            Iterator it  = item.iterator();
+            Iterator it = item.iterator();
             JsonArray items = new JsonArray();
-            while(it.hasNext()){
-                AuditData tmp = (AuditData)it.next();
+            while (it.hasNext()) {
+                AuditData tmp = (AuditData) it.next();
                 JsonObject tmpJson = tmp.toJSON();
                 items.add(tmpJson);
-                
+
             }
             result.addProperty("result", Boolean.TRUE);
             result.add("items", items);
@@ -133,18 +144,18 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/audit/list/{type}/{index}/{count}")
-    public String getAudit(@PathParam("type")String type,@PathParam("index")int index, @PathParam("count")int count) {
+    public String getAudit(@PathParam("type") String type, @PathParam("index") int index, @PathParam("count") int count) {
         JsonObject result = new JsonObject();
         try {
-            Collection item = auditService.getElements(type,index,count);
-            Iterator it  = item.iterator();
+            Collection item = auditService.getElements(type, index, count);
+            Iterator it = item.iterator();
             JsonArray items = new JsonArray();
-            while(it.hasNext()){
-                AuditData tmp = (AuditData)it.next();
+            while (it.hasNext()) {
+                AuditData tmp = (AuditData) it.next();
                 JsonObject tmpJson = tmp.toJSON();
                 items.add(tmpJson);
             }
@@ -156,18 +167,18 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/logs/{index}/{count}")
-    public String getLogs(@PathParam("index")int index, @PathParam("count")int count) {
+    public String getLogs(@PathParam("index") int index, @PathParam("count") int count) {
         JsonObject result = new JsonObject();
         try {
-            Collection item = auditService.getLogs(index,count);
-            Iterator it  = item.iterator();
+            Collection item = auditService.getLogs(index, count);
+            Iterator it = item.iterator();
             JsonArray items = new JsonArray();
-            while(it.hasNext()){
-                LogData tmp = (LogData)it.next();
+            while (it.hasNext()) {
+                LogData tmp = (LogData) it.next();
                 JsonObject tmpJson = tmp.toJSON();
                 items.add(tmpJson);
             }
@@ -179,7 +190,7 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/audit/reset")
@@ -193,23 +204,23 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/audit/from/{date}/{hour}")
-    public String auditfrom(@PathParam("date")String date,@PathParam("hour")String hour) {
+    public String auditfrom(@PathParam("date") String date, @PathParam("hour") String hour) {
         JsonObject result = new JsonObject();
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             Date dDate = sdf.parse(date);
             int hHour = Integer.parseInt(hour);
-            dDate.setTime(dDate.getTime()+hHour*3600000);
-            
+            dDate.setTime(dDate.getTime() + hHour * 3600000);
+
             Collection item = auditService.getElements(dDate);
-            Iterator it  = item.iterator();
+            Iterator it = item.iterator();
             JsonArray items = new JsonArray();
-            while(it.hasNext()){
-                AuditData tmp = (AuditData)it.next();
+            while (it.hasNext()) {
+                AuditData tmp = (AuditData) it.next();
                 JsonObject tmpJson = tmp.toJSON();
                 items.add(tmpJson);
             }
@@ -226,33 +237,56 @@ public class OrganizeService {
     
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    @Path("/audit/{type}/from/{date}/{hour}")
-    public String auditfrom(@PathParam("type")String type,@PathParam("date")String date,@PathParam("hour")String hour) {
+    @Path("/type/list/")
+    public String getOrganizers() {
         JsonObject result = new JsonObject();
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-            Date dDate = sdf.parse(date);
-            int hHour = Integer.parseInt(hour);
-            dDate.setTime(dDate.getTime()+hHour*3600000);
             
-            Collection item = auditService.getElements(type,dDate);
-            Iterator it  = item.iterator();
+            Collection<Organizer> item = service.getOrganizers();
+            Iterator it = item.iterator();
             JsonArray items = new JsonArray();
-            while(it.hasNext()){
-                AuditData tmp = (AuditData)it.next();
+            while (it.hasNext()) {
+                Organizer tmp = (Organizer) it.next();
                 JsonObject tmpJson = tmp.toJSON();
                 items.add(tmpJson);
             }
             result.addProperty("result", Boolean.TRUE);
             result.add("items", items);
-            result.addProperty("result", auditService.removeElements());
         } catch (Exception ex) {
             result.addProperty("result", Boolean.FALSE);
             result.addProperty("error", ex.getMessage());
         }
         return result.toString();
     }
-    
+
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("/audit/{type}/from/{date}/{hour}")
+    public String auditfrom(@PathParam("type") String type, @PathParam("date") String date, @PathParam("hour") String hour) {
+        JsonObject result = new JsonObject();
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            Date dDate = sdf.parse(date);
+            int hHour = Integer.parseInt(hour);
+            dDate.setTime(dDate.getTime() + hHour * 3600000);
+
+            Collection item = auditService.getElements(type, dDate);
+            Iterator it = item.iterator();
+            JsonArray items = new JsonArray();
+            while (it.hasNext()) {
+                AuditData tmp = (AuditData) it.next();
+                JsonObject tmpJson = tmp.toJSON();
+                items.add(tmpJson);
+            }
+            result.addProperty("result", Boolean.TRUE);
+            result.add("items", items);
+        } catch (Exception ex) {
+            result.addProperty("result", Boolean.FALSE);
+            result.addProperty("error", ex.getMessage());
+        }
+        return result.toString();
+    }
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/audit/timereset")
@@ -267,7 +301,7 @@ public class OrganizeService {
         }
         return result.toString();
     }
-    
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     @Path("/time")
@@ -281,5 +315,15 @@ public class OrganizeService {
             result.addProperty("error", ex.getMessage());
         }
         return result.toString();
+    }
+
+    private void launchExecuteAction() {
+        LOG.debug("Stasrting a single execution on-demand");
+        ExecutorThread eth = new ExecutorThread();
+        eth.setSingleExecution(true);
+        LOG.debug("Launching the execution thread");
+        Thread th = new Thread(eth);
+        th.start();
+        LOG.debug("Execution thread launched");
     }
 }

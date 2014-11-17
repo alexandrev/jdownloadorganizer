@@ -26,18 +26,12 @@ public class ShowsData extends AuditData {
         setFileName(file);
     }
 
+    @Override
     public JsonObject toJSON() {
-        JsonObject tmpJson = new JsonObject();
-        tmpJson.addProperty("filename", getFileName());
+        JsonObject tmpJson = super.toJSON();
         tmpJson.addProperty("show", getShowsName());
-        tmpJson.addProperty("type", getType());
-        tmpJson.addProperty("timestamp", getTimestamp() == null? "":getTimestamp().toString());
         tmpJson.addProperty("season", getSeason());
         tmpJson.addProperty("episode", getEpisode());
-        tmpJson.addProperty("status", getStatus());
-        tmpJson.addProperty("renamed", isRenamed());
-        tmpJson.addProperty("copied", isCopied());
-        tmpJson.addProperty("deleted", isDeleted());
         return tmpJson;
     }
 

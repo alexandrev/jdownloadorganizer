@@ -1,5 +1,6 @@
 package com.xandrev.jdorg.organizers.impl;
 
+import com.google.gson.JsonObject;
 import com.xandrev.jdorg.audit.Audit;
 import com.xandrev.jdorg.audit.data.MovieData;
 import com.xandrev.jdorg.configuration.Configuration;
@@ -7,6 +8,10 @@ import com.xandrev.jdorg.organizers.Organizer;
 import com.xandrev.jdorg.organizers.movies.impl.MovieOrganizerConfiguration;
 import com.xandrev.jdorg.organizers.movies.impl.MovieOrganizerConstants;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -18,10 +23,14 @@ import org.apache.log4j.Logger;
  */
 public class MovieOrganizer implements Organizer {
 
+    private String name;
+      private String type;
+    
     private String rootFolder;
     private int priority;
     private boolean ownFolder;
-    private static final Logger logger = LogManager.getLogger(TVShowsOrganizer.class);
+    private static final Logger LOG = LogManager.getLogger(MovieOrganizer.class);
+    private final Collection<String> extensionList;
 
     public MovieOrganizer() {
 
@@ -40,15 +49,27 @@ public class MovieOrganizer implements Organizer {
             }
         }
 
-        logger.info("Priority: " + priority);
+        LOG.info("Priority: " + priority);
 
         String ownFolderString = config.getProperty(MovieOrganizerConfiguration.OWN_FOLDER_MOVIE);
         if (ownFolderString == null) {
             ownFolderString = MovieOrganizerConstants.OWN_FOLDER_MOVIE_DEFAULT_VALUE;
         }
         ownFolder = Boolean.parseBoolean(ownFolderString);
+        
+        extensionList = new ArrayList<String>();
 
-        logger.info("Own Folder: " + ownFolder);
+        LOG.info("Own Folder: " + ownFolder);
+
+        String extensionsStr = config.getProperty(MovieOrganizerConfiguration.EXTENSIONS_CONFIGURATION);
+        if (extensionsStr == null || extensionsStr.isEmpty()) {
+            extensionsStr = MovieOrganizerConstants.EXTENSION_DEFAULT_VALUE;
+        }
+
+        name = MovieOrganizerConstants.NAME_ORGANIZER;
+        type = MovieOrganizerConstants.TYPE_ORGANIZER;
+
+        parseExtension(extensionsStr);
 
     }
 
@@ -116,5 +137,60 @@ public class MovieOrganizer implements Organizer {
             out = tmp.trim();
         }
         return out;
+    }
+    
+    public JsonObject toJSON() {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("name", getName());
+        obj.addProperty("type", getType());
+        return obj;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Collection<File> getFiles(File initialFolder) {
+        Collection<File> out = new ArrayList<File>();
+        if (initialFolder != null && !initialFolder.exists()) {
+            if (extensionList.size() > 0) {
+                String[] tmpArray = new String[extensionList.size()];
+                out = FileUtils.listFiles(initialFolder, extensionList.toArray(tmpArray), true);
+            }
+        }
+        return out;
+    }
+    
+    private void parseExtension(String extensionsStr) {
+        if(extensionsStr != null && !extensionsStr.isEmpty()){
+            String[] extList = extensionsStr.split(",");
+            if(extList != null){
+                extensionList.addAll(Arrays.asList(extList));
+            }
+        }
     }
 }

@@ -13,4 +13,5 @@ public class MovieOrganizerConfiguration {
     public final static String ROOT_FOLDER_CONFIGURATION = "movies.root_folder";
     public final static String PRIORITY_CONFIGURATION = "movies.priority";
     public final static String OWN_FOLDER_MOVIE = "movies.own_folder";
+    public final static String EXTENSIONS_CONFIGURATION = "movies.extensions";
 }

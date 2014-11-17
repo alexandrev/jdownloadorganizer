@@ -21,6 +21,9 @@ public class ExecutorThread implements Runnable {
     private final int sleepTime;
     private final boolean exit;
     private final ExecutorService service;
+    private boolean singleExecution;
+    
+    
 
     public ExecutorThread() {
         
@@ -38,10 +41,28 @@ public class ExecutorThread implements Runnable {
                     logger.info("Starting lookup for multimedia files at: "+new Date());
                     service.applyExistentFiles();
                     logger.info("Finished lookup for multimedia files at: "+new Date());
+                    if(singleExecution){
+                        break;
+                    }
                     Thread.sleep(sleepTime);
                 } catch (InterruptedException ex) {
                     java.util.logging.Logger.getLogger(ExecutorThread.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                
             }
+    }
+
+    /**
+     * @return the singleExecution
+     */
+    public boolean isSingleExecution() {
+        return singleExecution;
+    }
+
+    /**
+     * @param singleExecution the singleExecution to set
+     */
+    public void setSingleExecution(boolean singleExecution) {
+        this.singleExecution = singleExecution;
     }
 }

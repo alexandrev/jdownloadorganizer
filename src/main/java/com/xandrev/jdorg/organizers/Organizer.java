@@ -1,6 +1,9 @@
 package com.xandrev.jdorg.organizers;
 
+import com.google.gson.JsonObject;
 import com.xandrev.jdorg.audit.Audit;
+import java.io.File;
+import java.util.Collection;
 
 /**
  * General interface of a new item organizer
@@ -34,4 +37,9 @@ public interface Organizer extends Comparable<Object>{
     String getRootFolder();
 
     void audit(Audit auditService, String origPath, String finalPath, boolean renamed, boolean copied, boolean deleted);
+
+    JsonObject toJSON();
+    
+    Collection<File> getFiles(File initialFolder);
+    
 }
